@@ -8,7 +8,7 @@
 class window
 {
 public:
-	window(int screenWidhth, int screenHeight);
+	window(int screenWidhth, int screenHeight, GLFWframebuffersizefun);
 	~window();
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	GLFWwindow* getWindow();
