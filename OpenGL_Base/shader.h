@@ -1,20 +1,22 @@
 #pragma once
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
+#include <string>
+#include <fstream>
+#include <sstream>
 #include <iostream>
 #include "SOIL2/SOIL2.h"
-#include <vector>
 
 class Shader
 {
 public:
-	Shader(const char* shaderSource, GLenum shaderType, int shaderProgram);
+	Shader(const char* vertexPath, const char* fragmentPath, unsigned int id);
 	~Shader();
 
+	void useShader(int id);
 	int createShader(GLenum shaderType, const char* shaderSource);
-
+	
 private:
 
-	static std::vector<GLuint> m_shaders;
-	static int m_program;
+	unsigned int m_id;
 };

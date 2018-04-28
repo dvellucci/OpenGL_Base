@@ -1,24 +1,61 @@
 #include "shader.h"
 
-std::vector<GLuint> Shader::m_shaders;
-int Shader::m_program;
-
-Shader::Shader(const char* shaderSource, GLenum shaderType, int shaderProgram)
+Shader::Shader(const char* vertexPath, const char* fragmentPath, unsigned int id) 
 {
-	shaderProgram = glCreateProgram();
-	int newShader = createShader(shaderType, shaderSource);
-	m_shaders.push_back(newShader);
-
-	for (int i = 0; i < m_shaders.size(); i++)
+	// 1. retrieve the vertex/fragment source code from filePath
+	std::string vertexCode;
+	std::string fragmentCode;
+	std::ifstream vShaderFile;
+	std::ifstream fShaderFile;
+	// ensure ifstream objects can throw exceptions:
+	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	try
 	{
-		glAttachShader(shaderProgram, m_shaders[i]);
+		// open files
+		vShaderFile.open(vertexPath);
+		fShaderFile.open(fragmentPath);
+		std::stringstream vShaderStream, fShaderStream;
+		// read file's buffer contents into streams
+		vShaderStream << vShaderFile.rdbuf();
+		fShaderStream << fShaderFile.rdbuf();
+		// close file handlers
+		vShaderFile.close();
+		fShaderFile.close();
+		// convert stream into string
+		vertexCode = vShaderStream.str();
+		fragmentCode = fShaderStream.str();
 	}
+	catch (std::ifstream::failure e)
+	{
+		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+	}
+	const char* vShaderCode = vertexCode.c_str();
+	const char * fShaderCode = fragmentCode.c_str();
+
+	unsigned int vertex;
+	unsigned int fragment;
+
+	vertex = createShader(GL_VERTEX_SHADER, vShaderCode);
+	fragment = createShader(GL_FRAGMENT_SHADER, fShaderCode);
+
+	//id - glCreateProgram();
+	glAttachShader(id, vertex);
+	glAttachShader(id, fragment);
+	//glLinkProgram(id);
+
+	glDeleteShader(vertex);
+	glDeleteShader(fragment);
 }
 
 Shader::~Shader() 
 {
-	for (int i = 0; i < m_shaders.size(); i++)
-		glDeleteShader(m_shaders[i]);
+
+}
+
+void Shader::useShader(int id)
+{
+	glUseProgram(id);
 }
 
 int Shader::createShader(GLenum shaderType, const char* shaderSource)

@@ -35,5 +35,12 @@
     <ClInclude Include="shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\basicVertexShader.vs" />
+    <None Include="Shaders\basicFragShader.fs" />
   </ItemGroup>
 </Project>

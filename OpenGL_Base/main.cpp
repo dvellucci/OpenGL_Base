@@ -4,31 +4,17 @@
 #include "shader.h"
 #include <memory>
 
-const char *vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 int main()
 {
 	window windowObj(800, 600, framebuffer_size_callback);
-
-	int shaderProgram = 0;
-	auto vertexShader = std::shared_ptr<Shader>(new Shader(vertexShaderSource, GL_VERTEX_SHADER, shaderProgram));
-	auto fragmentShader = std::shared_ptr<Shader>(new Shader(fragmentShaderSource, GL_FRAGMENT_SHADER, shaderProgram));
-	glLinkProgram(shaderProgram);
-
 	auto window = windowObj.getWindow();
+
+	//create the program and shaders and link the shaders
+	int programID = glCreateProgram();
+	Shader shader("Shaders/basicVertexShader.vs", "Shaders/basicFragShader.fs", programID);
+	glLinkProgram(programID);
 
 	//float array to hold the points of the triangle
 	float vertices[] = {
@@ -62,13 +48,12 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-
 		// render
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// draw our first triangle
-		glUseProgram(shaderProgram);
+		shader.useShader(programID);
 		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
