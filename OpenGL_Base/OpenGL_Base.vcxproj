@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="window.cpp" />

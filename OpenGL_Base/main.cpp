@@ -2,12 +2,10 @@
 #include <GLFW\glfw3.h>
 #include "window.h"
 #include "shader.h"
-#include <memory>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "stb_image.h"
-#include "TextureLoader.h"
+#include "ResourceManager.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -17,10 +15,7 @@ int main()
 	auto window = windowObj.getWindow();
 
 	//create the program and shaders and link the shaders
-	int programID = glCreateProgram();
-	auto shader = std::shared_ptr<Shader>(new Shader("Shaders/texture.vs", "Shaders/texture.fs", programID));
-	glLinkProgram(programID);
-
+	auto shader = std::shared_ptr<Shader>(new Shader("Shaders/texture.vs", "Shaders/texture.fs"));
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	float vertices[] = {
@@ -30,6 +25,7 @@ int main()
 		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
 		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
 	};
+
 	unsigned int indices[] = {
 		0, 1, 3, // first triangle
 		1, 2, 3  // second triangle
@@ -57,20 +53,33 @@ int main()
 	// texture coord attribute
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
+	
+	ResourceManager& resMgr = ResourceManager::getInstance();
+	auto container = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/container.jpg");
 
-	TextureLoader load;
-	auto container = load.loadTexture(GL_TEXTURE_2D, "Resources/Textures/container.jpg");
+	////rotation code
+	//shader->useShader(shader->m_id);
+	//shader->setInt("texture", container.getTextureId());
+
+	//glm::mat4 trans;
+	//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+	////trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
+	//unsigned int transformLoc = glGetUniformLocation(shader->m_id, "transform");
+	//glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+
 
 	while (!glfwWindowShouldClose(window))
 	{
-		// render
+		
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		load.drawTexture(container);
-
-		// draw our first triangle
-		shader->useShader(programID);
+		// bind textures on corresponding texture units
+		container.bindTexture(container.getTextureId());
+		
+		//render
 		glBindVertexArray(VAO); 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

@@ -1,6 +1,6 @@
 #include "shader.h"
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath, unsigned int id) 
+Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
 	// 1. retrieve the vertex/fragment source code from filePath
 	std::string vertexCode;
@@ -39,10 +39,11 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, unsigned int id
 	vertex = createShader(GL_VERTEX_SHADER, vShaderCode);
 	fragment = createShader(GL_FRAGMENT_SHADER, fShaderCode);
 
-	//id - glCreateProgram();
-	glAttachShader(id, vertex);
-	glAttachShader(id, fragment);
-	//glLinkProgram(id);
+	//shader program
+	m_id = glCreateProgram();
+	glAttachShader(m_id, vertex);
+	glAttachShader(m_id, fragment);
+	glLinkProgram(m_id);
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
@@ -56,6 +57,11 @@ Shader::~Shader()
 void Shader::useShader(int id)
 {
 	glUseProgram(id);
+}
+
+void Shader::setInt(const std::string & name, int value) const
+{
+	glUniform1i(glGetUniformLocation(m_id, name.c_str()), value);
 }
 
 int Shader::createShader(GLenum shaderType, const char* shaderSource)

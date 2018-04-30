@@ -1,10 +1,9 @@
 #pragma once
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
 #include <iostream>
 #include <string>
+
 
 class TextureLoader
 {
@@ -12,8 +11,11 @@ public:
 	TextureLoader();
 	~TextureLoader();
 
-	void drawTexture(unsigned int textureId);
-	unsigned int loadTexture(GLenum target, const char* texturePath);
+	//bind and set the active texture
+	void bindTexture(unsigned int textureId);
+	//load texture and return the id
+	unsigned int loadTexture(GLenum target, GLenum wrapping, const char* texturePath);
+	unsigned int getTextureId() { return m_textureId; }
 
 private:
 	unsigned int m_textureId;
