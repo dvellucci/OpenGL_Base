@@ -6,6 +6,9 @@
 #include <sstream>
 #include <iostream>
 #include "SOIL2/SOIL2.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Shader
 {
@@ -15,6 +18,7 @@ public:
 
 	void useShader(int id);
 	void setInt(const std::string &name, int value) const;
+	void setMat4(const std::string &name, const glm::mat4 &mat) const;
 	int createShader(GLenum shaderType, const char* shaderSource);
 	
 	unsigned int m_id;
