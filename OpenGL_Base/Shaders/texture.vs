@@ -2,6 +2,7 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoord;
 
+//fragment shader will accept this output variable as input
 out vec2 TexCoord;
 
 uniform mat4 model;

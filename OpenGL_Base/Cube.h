@@ -2,6 +2,7 @@
 #include "shader.h"
 #include "ResourceManager.h"
 
+
 class Cube
 {
 public:
@@ -9,10 +10,11 @@ public:
 	~Cube();
 
 	void cubeTransforms(glm::vec3 rotation, glm::vec3 translate, std::shared_ptr<Shader> shader);
-	void renderCube(int numOfVertices);
+	void renderCube(int numOfVertices, std::shared_ptr<Shader> shader);
+	const int getVBO() { return VBO; }
+	const int getVAO() { return VAO; }
 
 private:
 
-	glm::mat4 projection;
 	unsigned int VBO, VAO;
 };
