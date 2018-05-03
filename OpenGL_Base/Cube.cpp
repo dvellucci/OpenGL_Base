@@ -27,23 +27,6 @@ Cube::~Cube()
 {
 }
 
-//set cube transforms
-void Cube::cubeTransforms(glm::vec3 rotation, glm::vec3 translate, std::shared_ptr<Shader> shader)
-{
-	// create transformations
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 projection;
-
-	model = glm::rotate(model, (float)glfwGetTime(), rotation);
-	view = glm::translate(view, translate);
-	projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
-
-	//make the textures be wrapped around the cube
-	shader->setMat4("model", model);
-	shader->setMat4("view", view);
-	shader->setMat4("projection", projection);
-}
 
 //render 1 or more cubes
 void Cube::renderCube(int numOfVertices, std::shared_ptr<Shader> shader)
@@ -55,12 +38,13 @@ void Cube::renderCube(int numOfVertices, std::shared_ptr<Shader> shader)
 	//	glm::mat4 model;
 	//	model = glm::translate(model, cubePositions[i]);
 	//	float angle = 20.0f * i;
-	//	model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+	//	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
 	//	shader->setMat4("model", model);
-
 	//	glDrawArrays(GL_TRIANGLES, 0, 36);
 	//}
 
 	glBindVertexArray(VAO);
+
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
+

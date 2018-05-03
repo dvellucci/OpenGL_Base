@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "ResourceManager.h"
 #include "Cube.h"
+#include "Camera.h"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -23,10 +24,16 @@ glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+//camera object with starting position
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+//checks for the first time to recieve mouse input to avoid sudden jumps when the mouse first enters the screen
+bool firstMouse = true;
 // yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
 float yaw = -90.0f;	
 //how much we're looking up or down
 float pitch = 0.0f;
+//start mouse position at the center of the screen
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 float fov = 45.0f;
@@ -36,8 +43,16 @@ int main()
 
 	float cameraSpeed = 0.0f;
 
-	window windowObj(800, 600, framebuffer_size_callback);
+	window windowObj(800, 600);
 	auto window = windowObj.getWindow();
+
+	//set the callbacks
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	// tell GLFW to capture our mouse
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -54,9 +69,6 @@ int main()
 	shader->setInt("texture1", 0);
 	shader->setInt("texture2", 1);
 
-	// pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
-	shader->setMat4("projection", projection);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -77,13 +89,17 @@ int main()
 		//render
 		shader->useShader(shader->m_id);
 
-		//set the lookAt function
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		// pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)800 / (float)600, 0.1f, 100.0f);
+		//getViewMatrix calls the lookAt function
+		glm::mat4 view = camera.GetViewMatrix();
+		shader->setMat4("projection", projection);
 		shader->setMat4("view", view);
 
 		//set model matrix and apply it to shader
-		glm::mat4 model = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-		model = glm::rotate(model, glm::radians(10.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
 		shader->setMat4("model", model);
 
 		cube.renderCube(36, shader);
@@ -98,25 +114,40 @@ int main()
 
 void processInput(GLFWwindow *window)
 {
-	float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraSpeed * cameraFront;
+		camera.processKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraFront;
+		camera.processKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.processKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.processKeyboard(RIGHT, deltaTime); 
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
 
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.processMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-
+	camera.processMouseScroll(yoffset);
 }
 
 // make sure the viewport matches the new window dimensions if the window gets resized
