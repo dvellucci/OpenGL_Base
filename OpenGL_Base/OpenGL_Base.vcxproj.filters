@@ -39,6 +39,12 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Libraries\PerlinNoise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h">
@@ -65,11 +71,22 @@
     <ClInclude Include="GlobalVertexVars.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\Noise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\PerlinNoise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\basicVertexShader.vs" />
     <None Include="Shaders\basicFragShader.fs" />
     <None Include="Shaders\texture.vs" />
     <None Include="Shaders\texture.fs" />
+    <None Include="Shaders\terrainShader.vs" />
+    <None Include="Shaders\terrainShader.fs" />
   </ItemGroup>
 </Project>

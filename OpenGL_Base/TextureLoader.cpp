@@ -20,7 +20,7 @@ void TextureLoader::bindTexture(GLenum texture, unsigned int textureId)
 	glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
-unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const char* texturePath)
+unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const char* texturePath, bool flip, int channels)
 {
 	glGenTextures(1, &m_textureId);
 	glBindTexture(target, m_textureId);
@@ -30,17 +30,16 @@ unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const ch
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
 
 	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR);
 
-	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(flip);
+	m_data = stbi_load(texturePath, &m_width, &m_height, &m_nrChannels, channels);
 
-	unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
-
-	if (data)
+ 	if (m_data)
 	{
 		//for png files, use GL_RGBA
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -48,7 +47,8 @@ unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const ch
 		std::cout << "Failed to load texture" << std::endl;
 		return 0;
 	}
-	stbi_image_free(data);
+
+//	stbi_image_free(data);
 
 	return m_textureId;
 }

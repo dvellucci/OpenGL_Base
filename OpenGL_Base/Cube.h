@@ -6,7 +6,7 @@
 class Cube
 {
 public:
-	Cube();
+	Cube(float vertices[]);
 	~Cube();
 
 	void renderCube(int numOfVertices, std::shared_ptr<Shader> shader);
@@ -15,6 +15,7 @@ public:
 
 private:
 
-	unsigned int VBO, VAO;
+	unsigned int VBO, VAO; 
+	float m_vertices[180];
 };
 

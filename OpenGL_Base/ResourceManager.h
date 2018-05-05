@@ -15,10 +15,10 @@ public:
 	}
 
 	//create and load a textureLoader object and save that texture in the map
-	TextureLoader load(GLenum target, GLenum wrapping, const char* texturePath)
+	TextureLoader load(GLenum target, GLenum wrapping, const char* texturePath, bool flip, int channels)
 	{
 		TextureLoader newTexture;
-		auto tex = newTexture.loadTexture(target, wrapping, texturePath);
+		auto tex = newTexture.loadTexture(target, wrapping, texturePath, flip, channels);
 
 		loadedTextures.insert(std::make_pair(texturePath, newTexture));
 

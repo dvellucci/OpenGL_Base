@@ -1,8 +1,9 @@
 #include "Cube.h"
-#include "GlobalVertexVars.h"
 
-Cube::Cube()
+Cube::Cube(float vertices[])
 {
+	std::copy(vertices, vertices + 180, m_vertices);
+
 	VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -10,7 +11,7 @@ Cube::Cube()
 
 	//send the actual vertices to be used to buffer data
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices), m_vertices, GL_STATIC_DRAW);
 
 	//the first parameters is the location of the position attribute set in the vertex shader
 	//the parameter of 5 * sizeof(float) tell us where in the vertices array the data we want to use is located
@@ -44,7 +45,6 @@ void Cube::renderCube(int numOfVertices, std::shared_ptr<Shader> shader)
 	//}
 
 	glBindVertexArray(VAO);
-
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 

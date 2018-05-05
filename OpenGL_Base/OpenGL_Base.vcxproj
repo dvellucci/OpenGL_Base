@@ -134,9 +134,11 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Libraries\PerlinNoise.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
@@ -144,15 +146,20 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="GlobalVertexVars.h" />
+    <ClInclude Include="Libraries\Noise.h" />
+    <ClInclude Include="Libraries\PerlinNoise.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\basicFragShader.fs" />
     <None Include="Shaders\basicVertexShader.vs" />
+    <None Include="Shaders\terrainShader.fs" />
+    <None Include="Shaders\terrainShader.vs" />
     <None Include="Shaders\texture.fs" />
     <None Include="Shaders\texture.vs" />
   </ItemGroup>

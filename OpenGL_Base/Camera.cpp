@@ -3,43 +3,47 @@
 Camera::Camera(glm::vec3 position) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
 			MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
-	//position = glm::vec3(0.0f, 0.0f, 0.0f);
-	//up = glm::vec3(0.0f, 1.0f, 0.0f);
-	//yaw = YAW;
-	//pitch = PITCH;
-
-	Position = position;
+	m_position = position;
 	WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	Yaw = YAW;
-	Pitch = PITCH;
+
+	//initial value for how much camera is looking left or right
+	Yaw = 50.0f;
+	//initial value for how much camera is looking up or down
+	Pitch = -40.0f;
 	updateCameraVectors();
 }
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
 			MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
-	Position = glm::vec3(posX, posY, posZ);
+	m_position = glm::vec3(posX, posY, posZ);
 	WorldUp = glm::vec3(upX, upY, upZ);
 	Yaw = yaw;
 	Pitch = pitch;
 	updateCameraVectors();
 }
 
+void Camera::setPosition(glm::vec3 pos)
+{
+	m_position = pos;
+}
+
 void Camera::processKeyboard(Camera_Movement direction, float deltaTime)
 {
 	float velocity = MovementSpeed * deltaTime;
 	if (direction == FORWARD)
-		Position += Front * velocity;
+		m_position += Front * velocity;
 	if (direction == BACKWARD)
-		Position -= Front * velocity;
+		m_position -= Front * velocity;
 	if (direction == LEFT)
-		Position -= Right * velocity;
+		m_position -= Right * velocity;
 	if (direction == RIGHT)
-		Position += Right * velocity;
+		m_position += Right * velocity;
 }
 
 void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
 {
+
 	xoffset *= MouseSensitivity;
 	yoffset *= MouseSensitivity;
 
