@@ -21,18 +21,14 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 //camera object with starting position
-Camera camera(glm::vec3(0.0f, 20.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 50.0f, 0.0f));
 
 //checks for the first time to recieve mouse input to avoid sudden jumps when the mouse first enters the screen
 bool firstMouse = true;
-// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-float yaw = -90.0f;	
-//how much we're looking up or down
-float pitch = 0.0f;
+
 //start mouse position at the center of the screen
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
-float fov = 45.0f;
 
 //var_Color = vec4(1.0, 1.0, clamp(in_Vertex.z, 0.0, 1.0), 1.0);
 

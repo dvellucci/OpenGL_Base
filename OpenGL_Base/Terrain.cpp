@@ -6,7 +6,7 @@
 #include "../Libraries/noise.h"
 
 Terrain::Terrain() : m_landScale(15.0), m_heightScale(100.0f), m_trueHeight(0.0f),
-m_rotationgAngle(0.0f), m_rotationSpeed(5.0), m_rotationAxis(0.0f, 0.0f, 0.0f), m_renderingMode(GL_TRIANGLES)
+m_rotationgAngle(0.0f), m_rotationSpeed(5.0), m_rotationAxis(1.0f, 0.0f, 0.0f), m_renderingMode(GL_TRIANGLES)
 {
 
 
@@ -38,15 +38,22 @@ void Terrain::setupTerrain(int w, int h, int ws, int hs, TextureLoader& loader)
 	glGenBuffers(1, &m_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
+	const siv::PerlinNoise perlin(12345);
+	const double frequency = 2.50;
+	const double fx = w / 8.0;
+	const double fy = h / 8.0;
+
 	float value = 0;
 	auto heightMapData = loader.getData();
 	// generate vertices, normals and uvs
-	for (auto i = 0; i <= hs; ++i) {
+	for (auto i = 0; i <= m_heightSeg; ++i) {
 		auto y = i * segment_height - height_half;
-		for (auto j = 0; j <= ws; ++j) {
+		for (auto j = 0; j <= m_widthSeg; ++j) {
 
 			double nx = j / ws - 0.5;
 			double ny = i / hs - 0.5;
+			auto e = perlin.octaveNoise0_1(i / fx, j / fy, 8);
+			auto n = std::pow(e, 2.5);
 
 			auto x = j * segment_width - width_half;
 
@@ -54,7 +61,7 @@ void Terrain::setupTerrain(int w, int h, int ws, int hs, TextureLoader& loader)
 			auto m_trueHeight = value / 255.0f;
 
 			vertices.push_back({
-				(float)i, m_landScale * m_trueHeight, (float)j,
+				(float)x, m_landScale * (float)(m_trueHeight), (float)-y, //makes the center of the terrain its origin
 				((float)j / ws), (1.0f - ((float)i / hs)),
 				});
 		}
@@ -144,7 +151,6 @@ float Terrain::rotateTerrain(float deltatime, GLFWwindow *window)
 
 glm::vec3 Terrain::getRotationAxis(GLFWwindow * window)
 {
-	m_rotationAxis = glm::vec3(1.0f, 0.0f, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
 	{
 		m_rotationAxis = glm::vec3(1.0f, 0.0f, 0.0f);

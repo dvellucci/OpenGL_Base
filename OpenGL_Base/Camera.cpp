@@ -7,9 +7,9 @@ Camera::Camera(glm::vec3 position) : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
 	WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	//initial value for how much camera is looking left or right
-	Yaw = 50.0f;
+	Yaw = 0.0f;
 	//initial value for how much camera is looking up or down
-	Pitch = -40.0f;
+	Pitch = -90.0f;
 	updateCameraVectors();
 }
 
