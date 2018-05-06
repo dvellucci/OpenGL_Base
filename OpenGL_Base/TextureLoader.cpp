@@ -1,6 +1,7 @@
 #include "TextureLoader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "SOIL2\SOIL2.h"
 
 TextureLoader::TextureLoader() : m_textureId(0)
 {
@@ -20,7 +21,7 @@ void TextureLoader::bindTexture(GLenum texture, unsigned int textureId)
 	glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
-unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const char* texturePath, bool flip, int channels)
+unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, GLenum internalRGB, GLenum format, const char* texturePath, bool flip, int channels)
 {
 	glGenTextures(1, &m_textureId);
 	glBindTexture(target, m_textureId);
@@ -39,7 +40,7 @@ unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const ch
  	if (m_data)
 	{
 		//for png files, use GL_RGBA
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_data);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalRGB, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, m_data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else

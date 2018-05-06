@@ -21,7 +21,7 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 //camera object with starting position
-Camera camera(glm::vec3(0.0f, 50.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 80.0f, 0.0f));
 
 //checks for the first time to recieve mouse input to avoid sudden jumps when the mouse first enters the screen
 bool firstMouse = true;
@@ -53,15 +53,14 @@ int main()
 	Cube cube(vertices);
 
 	ResourceManager& resMgr = ResourceManager::getInstance();
-	auto container = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/container.jpg", false, 0);
-	auto heightMap = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/HeightMaps/A1map.png", false, 1);
-	//camera.setPosition(glm::vec3((float)heightMap.getWidth() / 2, (float)heightMap.getHeight() / 2, (float)heightMap.getWidth() / 2);
-	auto terrainTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/heightMapTexture.png", true, 3);
+	//auto container = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGB, "Resources/Textures/container.jpg", false, 0);
+	auto heightMap = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGBA, GL_RGBA, "Resources/HeightMaps/A1map.bmp", false, 4);
+	auto terrainTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGB, GL_RGB, "Resources/Textures/heightMapTexture.png", true, 3);
 
 	Terrain terrain;
 	terrain.setupTerrain(heightMap.getWidth(), heightMap.getHeight(), heightMap.getWidth(), heightMap.getHeight(), heightMap);
 
-	//shader->useShader(shader->m_id);
+	shader->useShader(shader->m_id);
 	//shader->setInt("texture1", 0);
 	//shader->setInt("texture2", 1);
 
@@ -90,7 +89,7 @@ int main()
 		shader->useShader(shader->m_id);
 
 		// pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)800 / (float)600, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)800 / (float)600, 0.1f, 1000.0f);
 		//getViewMatrix calls the lookAt function
 		glm::mat4 view = camera.GetViewMatrix();
 		shader->setMat4("projection", projection);
@@ -109,7 +108,7 @@ int main()
 		terrainTexture.bindTexture(GL_TEXTURE_2D, terrainTexture.getTextureId());
 		terrain.render();
 
-		container.bindTexture(GL_TEXTURE_2D, container.getTextureId());
+		//container.bindTexture(GL_TEXTURE_2D, container.getTextureId());
 		cube.renderCube(36, shader);
 
 		// swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

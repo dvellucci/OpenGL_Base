@@ -14,7 +14,7 @@ public:
 	//bind and set the active texture
 	void bindTexture(GLenum texture, unsigned int textureId);
 	//load texture and return the id
-	unsigned int loadTexture(GLenum target, GLenum wrapping, const char* texturePath, bool flip, int channels);
+	unsigned int loadTexture(GLenum target, GLenum wrapping, GLenum internalRGB, GLenum format, const char* texturePath, bool flip, int channels);
 	unsigned int getTextureId() { return m_textureId; }
 	int getWidth() { return m_width; }
 	int getHeight() { return m_height; }
