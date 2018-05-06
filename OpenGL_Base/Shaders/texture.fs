@@ -2,7 +2,7 @@
 out vec4 FragColor;
 
 //in is used for input variables
-in vec3 ourColor;
+in vec4 varColor;
 in vec2 TexCoord;
 
 // texture samplers
@@ -11,6 +11,6 @@ uniform sampler2D texture2;
 
 void main()
 {
-	// linearly interpolate between both textures (80% container, 20% awesomeface)
 	FragColor = texture(texture1, TexCoord);
+	//FragColor = varColor;
 }

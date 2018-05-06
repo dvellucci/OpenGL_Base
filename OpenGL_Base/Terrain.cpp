@@ -5,7 +5,7 @@
 #include "../Libraries/PerlinNoise.h"
 #include "../Libraries/noise.h"
 
-Terrain::Terrain() : m_landScale(15.0), m_heightScale(100.0f), m_trueHeight(0.0f),
+Terrain::Terrain() : m_landScale(25.0), m_trueHeight(0.0f),
 m_rotationgAngle(0.0f), m_rotationSpeed(5.0), m_rotationAxis(1.0f, 0.0f, 0.0f), m_renderingMode(GL_TRIANGLES)
 {
 
@@ -57,12 +57,14 @@ void Terrain::setupTerrain(int w, int h, int ws, int hs, TextureLoader& loader)
 
 			auto x = j * segment_width - width_half;
 
-			value = (float)heightMapData[(j * m_width + i)];
+			//value = (float)heightMapData[(j * m_width + i)];
+			value = static_cast<float>(*(heightMapData + (i*m_width + j) * 4));
 			auto m_trueHeight = value / 255.0f;
 
 			vertices.push_back({
 				(float)x, m_landScale * (float)(m_trueHeight), (float)-y, //makes the center of the terrain its origin
 				((float)j / ws), (1.0f - ((float)i / hs)),
+				//0.0f, 0.0f, 0.0f, (float)e
 				});
 		}
 	}
@@ -79,8 +81,8 @@ void Terrain::setupTerrain(int w, int h, int ws, int hs, TextureLoader& loader)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
 
 	// bind VertexColor attribute
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+//	glEnableVertexAttribArray(2);
+//	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
 
 	// element buffer object
 	glGenBuffers(1, &m_ebo);

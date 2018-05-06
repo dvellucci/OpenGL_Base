@@ -34,7 +34,6 @@ private: // private variables
 	int m_width, m_height, m_widthSeg, m_heightSeg;
 	int m_renderingMode;
 	float m_landScale;
-	float m_heightScale;
 	float m_trueHeight;
 
 	float m_rotationgAngle;
