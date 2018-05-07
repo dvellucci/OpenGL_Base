@@ -19,11 +19,11 @@ public:
 	Terrain();
 	~Terrain();
 
-	void setupTerrain(int, int, int, int, TextureLoader& loader);
+	void setupTerrain(int, int, TextureLoader& loader);
 	void render();
 	void changeRenderMode(GLFWwindow * window);
 	float rotateTerrain(float deltatime, GLFWwindow *window);
-	glm::vec3 getRotationAxis(GLFWwindow *window);
+	const glm::vec3 getRotationAxis() { return m_rotationAxis; }
 
 
 private: // private variables
@@ -31,10 +31,9 @@ private: // private variables
 	GLuint m_vbo;
 	GLuint m_ebo;
 
-	int m_width, m_height, m_widthSeg, m_heightSeg;
+	int m_width, m_height;
 	int m_renderingMode;
 	float m_landScale;
-	float m_trueHeight;
 
 	float m_rotationgAngle;
 	float m_rotationSpeed;
@@ -43,7 +42,5 @@ private: // private variables
 
 	// buffers
 	std::vector<Vertex> vertices;
-	//std::vector<float> vertices;
-	std::vector<int> indices;
-	std::vector<std::vector<float>> heights;
+	std::vector<int> m_indices;
 };	

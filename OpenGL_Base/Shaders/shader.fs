@@ -11,6 +11,9 @@ uniform sampler2D texture2;
 
 void main()
 {
-	FragColor = texture(texture1, TexCoord);
-	//FragColor = varColor;
+	//applies the texture to the object
+	//FragColor = texture(texture1, TexCoord);
+	
+	//sets the color of the object 
+	FragColor = varColor;
 }

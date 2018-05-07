@@ -7,6 +7,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	std::string fragmentCode;
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
+
 	// ensure ifstream objects can throw exceptions:
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -39,7 +40,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	vertex = createShader(GL_VERTEX_SHADER, vShaderCode);
 	fragment = createShader(GL_FRAGMENT_SHADER, fShaderCode);
 
-	//shader program
+	//create shader program and attach the vertex/fragment shaders
 	m_id = glCreateProgram();
 	glAttachShader(m_id, vertex);
 	glAttachShader(m_id, fragment);

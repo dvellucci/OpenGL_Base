@@ -82,11 +82,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\basicVertexShader.vs" />
-    <None Include="Shaders\basicFragShader.fs" />
-    <None Include="Shaders\texture.vs" />
-    <None Include="Shaders\texture.fs" />
-    <None Include="Shaders\terrainShader.vs" />
-    <None Include="Shaders\terrainShader.fs" />
+    <None Include="Shaders\shader.fs" />
+    <None Include="Shaders\shader.vs" />
+    <None Include="Shaders\cubeShader.fs" />
+    <None Include="Shaders\cubeShader.vs" />
   </ItemGroup>
 </Project>

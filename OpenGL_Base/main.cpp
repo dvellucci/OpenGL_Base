@@ -48,34 +48,44 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	//create the program and shaders and link the shaders
-	auto shader = std::shared_ptr<Shader>(new Shader("Shaders/texture.vs", "Shaders/texture.fs"));
+	auto shader = std::shared_ptr<Shader>(new Shader("Shaders/shader.vs", "Shaders/shader.fs"));
 
 	Cube cube(vertices);
 
 	ResourceManager& resMgr = ResourceManager::getInstance();
 	//auto container = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGB, "Resources/Textures/container.jpg", false, 0);
+	//load the heightMap with 4 channels
 	auto heightMap = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGBA, GL_RGBA, "Resources/HeightMaps/A1map.bmp", false, 4);
-	auto terrainTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGB, GL_RGB, "Resources/Textures/heightMapTexture.png", true, 3);
+	//load the terrain texture corresponding to the heightmap
+	auto terrainTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGB, GL_RGB, "Resources/Textures/terrainTexture.png", true, 3);
 
+	//create the terrain and set the dimensions 
 	Terrain terrain;
-	terrain.setupTerrain(heightMap.getWidth(), heightMap.getHeight(), heightMap.getWidth(), heightMap.getHeight(), heightMap);
+	terrain.setupTerrain(heightMap.getWidth(), heightMap.getHeight(), heightMap);
 
+	//calls glUsePogram with the shader id
 	shader->useShader(shader->m_id);
+
+	////used to set multiple textures to an object
 	//shader->setInt("texture1", 0);
 	//shader->setInt("texture2", 1);
 
+	//heightMap.bindTexture(GL_TEXTURE_2D, heightMap.getTextureId());
+	//terrainTexture.bindTexture(GL_TEXTURE_2D, terrainTexture.getTextureId());
+
 	while (!glfwWindowShouldClose(window))
 	{
-		// per-frame time logic
+		//
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		//process window/camera input
 		processInput(window);
 
 		//terrain rotation 
 		auto terrainAngle = terrain.rotateTerrain(deltaTime, window);
-		glm::vec3 terrainAxisRotation = terrain.getRotationAxis(window);
+	//	glm::vec3 terrainAxisRotation = terrain.getRotationAxis(window);
 
 		//change terrain rendering mode
 		terrain.changeRenderMode(window);
@@ -83,9 +93,7 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// bind textures on corresponding texture units
-		//terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
-
+		//calls glUsePogram with the shader id
 		shader->useShader(shader->m_id);
 
 		// pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
@@ -98,18 +106,14 @@ int main()
 		//set model matrix and apply it to shader
 		glm::mat4 model;
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	//	model = glm::translate(model, glm::vec3((float)terrainTexture.getWidth() / 2, (float)terrainTexture.getHeight() / 2, 0.0f));
-		model = glm::rotate(model, glm::radians(terrainAngle), terrainAxisRotation);
+		model = glm::rotate(model, glm::radians(terrainAngle), terrain.getRotationAxis());
 
 		shader->setMat4("model", model);
 
-		heightMap.bindTexture(GL_TEXTURE_2D, heightMap.getTextureId());
-		terrainTexture.bindTexture(GL_TEXTURE_2D, terrainTexture.getTextureId());
 		terrain.render();
 
 		//container.bindTexture(GL_TEXTURE_2D, container.getTextureId());
-		cube.renderCube(36, shader);
+		//cube.renderCube(36, shader);
 
 		// swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
@@ -124,6 +128,7 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+	//camera input
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.processKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -134,6 +139,7 @@ void processInput(GLFWwindow *window)
 		camera.processKeyboard(RIGHT, deltaTime);
 }
 
+//called whenever the mouse moves
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
@@ -152,6 +158,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	camera.processMouseMovement(xoffset, yoffset);
 }
 
+//called when the mouse scroll button is used
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.processMouseScroll(yoffset);
