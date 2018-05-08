@@ -2,9 +2,6 @@
 #include <math.h>
 #include "Terrain.h"
 
-#include "../Libraries/PerlinNoise.h"
-#include "../Libraries/noise.h"
-
 Terrain::Terrain() : m_landScale(25.0), m_rotationgAngle(0.0f), 
 m_rotationSpeed(5.0), m_rotationAxis(1.0f, 0.0f, 0.0f), m_renderingMode(GL_TRIANGLES)
 {
