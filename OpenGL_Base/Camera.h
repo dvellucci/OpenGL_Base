@@ -45,7 +45,7 @@ public:
 	// Returns the view matrix calculated using Euler Angles and the LookAt Matrix
 	glm::mat4 GetViewMatrix() { return glm::lookAt(m_position, m_position + Front, Up); }
 	// Processes input recieved by the keyboard
-	void processKeyboard(Camera_Movement direction, float deltaTime);
+	void moveCamera(Camera_Movement direction, float deltaTime);
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
 	// Processes input received from a mouse scroll wheel

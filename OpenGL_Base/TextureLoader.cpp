@@ -48,7 +48,7 @@ unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, GLenum i
 		return 0;
 	}
 
-//	stbi_image_free(data);
+//	stbi_image_free(m_data);
 
 	return m_textureId;
 }

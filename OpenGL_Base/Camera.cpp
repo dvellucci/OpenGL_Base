@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera(glm::vec3 position) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
-			MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+		MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
 	m_position = position;
 	WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -13,9 +13,10 @@ Camera::Camera(glm::vec3 position) : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
 	updateCameraVectors();
 }
 
-void Camera::processKeyboard(Camera_Movement direction, float deltaTime)
+void Camera::moveCamera(Camera_Movement direction, float deltaTime)
 {
 	float velocity = MovementSpeed * deltaTime;
+
 	if (direction == FORWARD)
 		m_position += Front * velocity;
 	if (direction == BACKWARD)
@@ -24,6 +25,7 @@ void Camera::processKeyboard(Camera_Movement direction, float deltaTime)
 		m_position -= Right * velocity;
 	if (direction == RIGHT)
 		m_position += Right * velocity;
+	
 }
 
 void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)

@@ -77,6 +77,7 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 	for (auto i = 0; i < h-1; ++i) {
 		for (auto j = 0; j < w-1; ++j) {
 
+			//get the indices to draw with indexing
 			int idx = (j * w) + i;
 
 			// triangle a
@@ -144,7 +145,7 @@ void Terrain::changeRenderMode(GLFWwindow * window)
 	}
 	else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 	{
-		m_renderingMode = GL_LINE_STRIP;
+		m_renderingMode = GL_LINES;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
 	{

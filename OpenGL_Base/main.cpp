@@ -15,22 +15,25 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-//camera object with starting position
+//create camera object with starting position
 Camera camera(glm::vec3(0.0f, 80.0f, 0.0f));
 
 //checks for the first time to recieve mouse input to avoid sudden jumps when the mouse first enters the screen
 bool firstMouse = true;
-
+//boolean to decide if the camera should be free to move based on mouse click
+bool moveCamera = false;
 //start mouse position at the center of the screen
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 
-//var_Color = vec4(1.0, 1.0, clamp(in_Vertex.z, 0.0, 1.0), 1.0);
+int mouseButton = 0;
+int mouseButtonState = 0;
 
 int main()
 {
@@ -39,6 +42,7 @@ int main()
 
 	//set the callbacks
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
@@ -105,7 +109,7 @@ int main()
 
 		//set model matrix and apply it to shader
 		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(terrainAngle), terrain.getRotationAxis());
 
 		shader->setMat4("model", model);
@@ -128,15 +132,20 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	//camera input
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.processKeyboard(FORWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.processKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.processKeyboard(LEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.processKeyboard(RIGHT, deltaTime);
+	if (moveCamera == true) 
+	{
+		//camera keyboard controls
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			camera.moveCamera(FORWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			camera.moveCamera(BACKWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			camera.moveCamera(LEFT, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			camera.moveCamera(RIGHT, deltaTime);
+	}
+
+
 }
 
 //called whenever the mouse moves
@@ -168,4 +177,16 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 void framebuffer_size_callback(GLFWwindow * window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
+	{
+		moveCamera = true;
+	}
+	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	{
+		moveCamera = false;
+	}
 }
