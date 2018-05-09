@@ -45,6 +45,9 @@
     <ClCompile Include="Terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h">
@@ -80,11 +83,16 @@
     <ClInclude Include="Libraries\PerlinNoise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
     <None Include="Shaders\cubeShader.fs" />
     <None Include="Shaders\cubeShader.vs" />
+    <None Include="Shaders\skyboxShader.vs" />
+    <None Include="Shaders\skyboxShader.fs" />
   </ItemGroup>
 </Project>

@@ -7,13 +7,13 @@ in vec2 TexCoord;
 
 // texture samplers
 uniform sampler2D texture1;
-uniform sampler2D texture2;
+uniform samplerCube cubemap;
 
 void main()
 {
 	//applies the texture to the object
-	//FragColor = texture(texture1, TexCoord);
+	FragColor = texture(texture1, TexCoord);
 	
 	//sets the color of the object 
-	FragColor = varColor;
+	//FragColor = varColor;
 }

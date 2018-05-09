@@ -138,6 +138,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="window.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="Libraries\PerlinNoise.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextureLoader.h" />
@@ -160,6 +162,8 @@
     <None Include="Shaders\cubeShader.vs" />
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
+    <None Include="Shaders\skyboxShader.fs" />
+    <None Include="Shaders\skyboxShader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
