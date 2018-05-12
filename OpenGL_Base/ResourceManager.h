@@ -27,14 +27,14 @@ public:
 
 	TextureLoader loadCubeMap(std::vector<std::string> faces)
 	{
-	/*	TextureLoader newTexture;
+		TextureLoader newTexture;
 		auto tex = newTexture.loadCubeMap(faces);
 
-		for (int i = 0; i < faces.size(); i++)
+		for (size_t i = 0; i < faces.size(); i++)
 		{
 			loadedTextures.insert(std::make_pair(faces[i], newTexture));
 		}
-		return newTexture;*/
+		return newTexture;
 	}
 
 private:

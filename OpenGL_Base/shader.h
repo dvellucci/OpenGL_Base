@@ -15,13 +15,12 @@ public:
 	Shader(const char* vertexPath, const char* fragmentPath);
 	~Shader();
 
-	void useShader(int id);
+	void useShader();
 	void setInt(const std::string &name, int value) const;
 	void setMat4(const std::string &name, const glm::mat4 &mat) const;
 	int createShader(GLenum shaderType, const char* shaderSource);
-	
-	unsigned int m_id;
 
 private:
+	unsigned int m_id;
 
 };

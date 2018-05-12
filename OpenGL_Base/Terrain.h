@@ -26,7 +26,8 @@ public:
 	const glm::vec3 getRotationAxis() { return m_rotationAxis; }
 
 
-private: // private variables
+private: 
+
 	GLuint m_vao;
 	GLuint m_vbo;
 	GLuint m_ebo;

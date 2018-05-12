@@ -55,9 +55,9 @@ Shader::~Shader()
 
 }
 
-void Shader::useShader(int id)
+void Shader::useShader()
 {
-	glUseProgram(id);
+	glUseProgram(m_id);
 }
 
 void Shader::setInt(const std::string & name, int value) const

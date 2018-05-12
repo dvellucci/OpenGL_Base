@@ -17,7 +17,7 @@ void main()
 	gl_Position = projection * view * model * vec4(vertexCoord, 1.0f);
 
 	//set the coords of the texture
-	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+	TexCoord = aTexCoord;   
 
 	//set the color of each pixel in the height map based on the height 
 	//higher mountains will be whiter

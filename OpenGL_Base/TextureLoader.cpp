@@ -47,7 +47,6 @@ unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const ch
 
  	if (m_data)
 	{
-		//for png files, use GL_RGBA
 		glTexImage2D(GL_TEXTURE_2D, 0, rgbFormat, m_width, m_height, 0, rgbFormat, GL_UNSIGNED_BYTE, m_data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
@@ -76,6 +75,7 @@ unsigned int TextureLoader::loadCubeMap(std::vector<std::string> faces)
 		//generate the 2d texture image
 		if (data)
 		{
+			stbi_set_flip_vertically_on_load(false);
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
 		}
