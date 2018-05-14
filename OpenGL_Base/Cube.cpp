@@ -4,7 +4,6 @@ Cube::Cube(float vertices[])
 {
 	std::copy(vertices, vertices + 180, m_vertices);
 
-	VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VAO);

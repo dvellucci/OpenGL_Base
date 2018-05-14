@@ -1,49 +1,49 @@
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 position) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
-		MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+Camera::Camera(glm::vec3 position) : m_front(glm::vec3(0.0f, 0.0f, -1.0f)), 
+		m_cameraSpeed(15.0f), m_sensitivity(0.1f), m_zoom(45.0f)
 {
 	m_position = position;
-	WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	//initial value for how much camera is looking left or right
-	Yaw = 0.0f;
+	m_yaw = 0.0f;
 	//initial value for how much camera is looking up or down
-	Pitch = 0.0f;
+	m_pitch = 0.0f;
 	updateCameraVectors();
 }
 
 void Camera::moveCamera(Camera_Movement direction, float deltaTime)
 {
-	float velocity = MovementSpeed * deltaTime;
+	float velocity = m_cameraSpeed * deltaTime;
 
 	if (direction == FORWARD)
-		m_position += Front * velocity;
+		m_position += m_front * velocity;
 	if (direction == BACKWARD)
-		m_position -= Front * velocity;
+		m_position -= m_front * velocity;
 	if (direction == LEFT)
-		m_position -= Right * velocity;
+		m_position -= m_right * velocity;
 	if (direction == RIGHT)
-		m_position += Right * velocity;
+		m_position += m_right * velocity;
 	
 }
 
 void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
 {
 
-	xoffset *= MouseSensitivity;
-	yoffset *= MouseSensitivity;
+	xoffset *= m_sensitivity;
+	yoffset *= m_sensitivity;
 
-	Yaw += xoffset;
-	Pitch += yoffset;
+	m_yaw += xoffset;
+	m_pitch += yoffset;
 
 	// Make sure that when pitch is out of bounds, screen doesn't get flipped
 	if (constrainPitch)
 	{
-		if (Pitch > 89.0f)
-			Pitch = 89.0f;
-		if (Pitch < -89.0f)
-			Pitch = -89.0f;
+		if (m_pitch > 89.0f)
+			m_pitch = 89.0f;
+		if (m_pitch < -89.0f)
+			m_pitch = -89.0f;
 	}
 
 	// Update Front, Right and Up Vectors using the updated Euler angles
@@ -52,25 +52,25 @@ void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constr
 
 void Camera::processMouseScroll(float yoffset)
 {
-	if (Zoom >= 1.0f && Zoom <= 45.0f)
-		Zoom -= yoffset;
-	if (Zoom <= 1.0f)
-		Zoom = 1.0f;
-	if (Zoom >= 45.0f)
-		Zoom = 45.0f;
+	if (m_zoom >= 1.0f && m_zoom <= 45.0f)
+		m_zoom -= yoffset;
+	if (m_zoom <= 1.0f)
+		m_zoom = 1.0f;
+	if (m_zoom >= 45.0f)
+		m_zoom = 45.0f;
 }
 
 void Camera::updateCameraVectors()
 {
 	//update the Front vector
 	glm::vec3 front;
-	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-	front.y = sin(glm::radians(Pitch));
-	front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-	Front = glm::normalize(front);
+	front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	front.y = sin(glm::radians(m_pitch));
+	front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	m_front = glm::normalize(front);
 
 	// Also re-calculate the Right and Up vector
 	// Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-	Right = glm::normalize(glm::cross(Front, WorldUp));
-	Up = glm::normalize(glm::cross(Right, Front));
+	m_right = glm::normalize(glm::cross(m_front, m_worldUp));
+	m_up = glm::normalize(glm::cross(m_right, m_front));
 }

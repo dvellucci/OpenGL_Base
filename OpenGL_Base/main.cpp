@@ -69,38 +69,35 @@ int main()
 	terrain.setupTerrain(heightMap.getWidth(), heightMap.getHeight(), heightMap);
 
 	//create skybox, insert each filepath for the faces into the vector and load them
-	//skybox skybox(skyboxvertices);
-	//skybox.setskyboxfaces();
-	//auto skyboxfaces = skybox.getskyboxvector();
-	//auto skyboxtexture = resmgr.loadcubemap(skyboxfaces);
+	Skybox skybox(skyboxVertices);
+	auto skyboxfaces = skybox.getSkyboxVector();
+	auto skyboxTexture = resMgr.loadCubeMap(skyboxfaces);
 	// skybox VAO
-	unsigned int skyboxVAO, skyboxVBO;
-	glGenVertexArrays(1, &skyboxVAO);
+	//unsigned int skyboxVAO, skyboxVBO;
+	/*glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
 	glBindVertexArray(skyboxVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);*/
 
-	std::vector<std::string> faces
-	{
-		("Resources/Textures/skybox/right.jpg"),
-		("Resources/Textures/skybox/left.jpg"),
-		("Resources/Textures/skybox/top.jpg"),
-		("Resources/Textures/skybox/bottom.jpg"),
-		("Resources/Textures/skybox/front.jpg"),
-		("Resources/Textures/skybox/back.jpg")
-	};
-
-	auto skyBoxTexture = resMgr.loadCubeMap(faces);
+	//std::vector<std::string> faces
+	//{
+	//	("Resources/Textures/skybox/right.jpg"),
+	//	("Resources/Textures/skybox/left.jpg"),
+	//	("Resources/Textures/skybox/top.jpg"),
+	//	("Resources/Textures/skybox/bottom.jpg"),
+	//	("Resources/Textures/skybox/front.jpg"),
+	//	("Resources/Textures/skybox/back.jpg")
+	//};
 
 	skyboxShader->useShader();
 	skyboxShader->setInt("skybox", 0);
 
 	while (!glfwWindowShouldClose(window))
 	{
-		//
+		//time
 		float currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -119,37 +116,34 @@ int main()
 
 		//calls glUsePogram with the shader id
 		shader->useShader();
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(0.0f, -100.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(terrainAngle), terrain.getRotationAxis());
 		// set projection matrix
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)800 / (float)600, 0.1f, 1000.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.getZoom()), (float)800 / (float)600, 0.1f, 1000.0f);
 		//getViewMatrix calls the lookAt function
 		glm::mat4 view = camera.GetViewMatrix();
-		//set model matrix and apply it to shader
-		glm::mat4 model;
-		//model = glm::rotate(model, glm::radians(terrainAngle), terrain.getRotationAxis());
+
 		shader->setMat4("projection", projection);
 		shader->setMat4("view", view);
 		shader->setMat4("model", model);
 		terrain.render();
-
-		glDepthFunc(GL_LEQUAL);
+		
+		//glDepthRange(1, 1);
+		glDepthMask(GL_FALSE);
 		skyboxShader->useShader();
-		skyboxShader->setInt("skybox", 0);
-		view = glm::mat4((camera.GetViewMatrix())); // remove translation from the view matrix
 		//set the view and projection matrices to the uniform variables in the shader
+		view = glm::mat4((camera.GetViewMatrix())); // remove translation from the view matrix
 		skyboxShader->setMat4("view", view);
 		skyboxShader->setMat4("projection", projection);
-		glBindVertexArray(skyboxVAO);
+		skyboxShader->setInt("skybox", 0);
+		glBindVertexArray(skybox.getVao());
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTexture.getTextureId());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.getTextureId());
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS); 
 
-		//bind skybox shader glUseProgram
-		//draw skybox
-		//bind heightmap shader
-		//draw heightmap
-		//unbind
 
 		// swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
@@ -168,13 +162,13 @@ void processInput(GLFWwindow *window)
 	{
 		//camera keyboard controls
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			camera.moveCamera(FORWARD, deltaTime);
+			camera.moveCamera(camera.FORWARD, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			camera.moveCamera(BACKWARD, deltaTime);
+			camera.moveCamera(camera.BACKWARD, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			camera.moveCamera(LEFT, deltaTime);
+			camera.moveCamera(camera.LEFT, deltaTime);
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			camera.moveCamera(RIGHT, deltaTime);
+			camera.moveCamera(camera.RIGHT, deltaTime);
 	}
 
 
