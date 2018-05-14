@@ -7,6 +7,7 @@ layout (location = 2) in vec4 var_color;
 out vec2 TexCoord;
 out vec4 varColor;
 
+uniform float heightScale;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -19,9 +20,7 @@ void main()
 	//set the coords of the texture
 	TexCoord = aTexCoord;   
 
-	//set the color of each pixel in the height map based on the height 
-	//higher mountains will be whiter
-	//25 is the value of the height scaling for the terrain
-	float g = (vertexCoord.y - 0)/(25 - 0); 
+	//set the color of each pixel in the height map based on the heightScale value 
+	float g = (vertexCoord.y - 0)/(heightScale - 0); 
 	varColor = vec4(g, g, g, 1.0);
 }

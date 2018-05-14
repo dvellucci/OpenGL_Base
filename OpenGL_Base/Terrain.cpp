@@ -2,7 +2,7 @@
 #include <math.h>
 #include "Terrain.h"
 
-Terrain::Terrain() : m_landScale(25.0), m_rotationgAngle(0.0f), 
+Terrain::Terrain() : m_heightScale(25.0), m_rotationgAngle(0.0f), 
 m_rotationSpeed(5.0), m_rotationAxis(1.0f, 0.0f, 0.0f), m_renderingMode(GL_TRIANGLES)
 {
 
@@ -42,7 +42,7 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 
 			//get proper x and z values so that the terrain is centered around (0,0) in world space
 			float x = (s * w) - (w * 0.5f);
-			float y = m_landScale * (value / 255.0f);
+			float y = m_heightScale * (value / 255.0f);
 			float z = (t * h) - (h * 0.5f);
 
 			//insert the vertex coords and the texture coords

@@ -22,7 +22,9 @@ public:
 	void setupTerrain(int, int, TextureLoader& loader);
 	void render();
 	void changeRenderMode(GLFWwindow * window);
+	void setHeightScale(float heightScale) { m_heightScale = heightScale; }
 	float rotateTerrain(float deltatime, GLFWwindow *window);
+	const float getHeightScale() { return m_heightScale; }
 	const glm::vec3 getRotationAxis() { return m_rotationAxis; }
 
 
@@ -34,7 +36,7 @@ private:
 
 	int m_width, m_height;
 	int m_renderingMode;
-	float m_landScale;
+	float m_heightScale;
 
 	float m_rotationgAngle;
 	float m_rotationSpeed;

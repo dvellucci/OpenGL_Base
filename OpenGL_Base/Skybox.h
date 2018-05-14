@@ -6,7 +6,7 @@
 class Skybox
 {
 public:
-	Skybox(float vertices[]);
+	Skybox(float boxVertices[]);
 	~Skybox();
 	void renderSkybox();
 	std::vector<std::string> getSkyboxVector() { return m_skyboxFaces; }
@@ -14,6 +14,7 @@ public:
 
 private:
 	std::vector<std::string> m_skyboxFaces;
+	float m_skyboxVertices[108];
 
 	GLuint m_vao;
 	GLuint m_vbo;

@@ -29,6 +29,7 @@ public:
 	// Processes input received from a mouse scroll wheel
 	void processMouseScroll(float yoffset);
 	const float getZoom() { return m_zoom; }
+	glm::vec3 getPosition() { return m_position; }
 
 private:
 

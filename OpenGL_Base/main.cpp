@@ -24,7 +24,7 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 //create camera object with starting position
-Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 100.0f, 100.0f));
 
 //checks for the first time to recieve mouse input to avoid sudden jumps when the mouse first enters the screen
 bool firstMouse = true;
@@ -60,37 +60,44 @@ int main()
 	ResourceManager& resMgr = ResourceManager::getInstance();
 	//auto container = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGB, "Resources/Textures/container.jpg", false, 0);
 	//load the heightMap with 4 channels
-	auto heightMap = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/HeightMaps/A1map.bmp", false, 4);
+	auto heightMap = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/HeightMaps/heightmap_island.png", false, 4);
 	//load the terrain texture corresponding to the heightmap
-	auto terrainTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/terrainTexture.png", true, 4);
+	auto terrainTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/island_texture.png", true, 4);
 
 	//create the terrain and set the dimensions 
 	Terrain terrain;
+	terrain.setHeightScale(25.0f);
+	shader->useShader();
+	shader->setFloat("heightScale", terrain.getHeightScale());
 	terrain.setupTerrain(heightMap.getWidth(), heightMap.getHeight(), heightMap);
 
 	//create skybox, insert each filepath for the faces into the vector and load them
-	Skybox skybox(skyboxVertices);
+	/*Skybox skybox(skyboxVertices);
 	auto skyboxfaces = skybox.getSkyboxVector();
-	auto skyboxTexture = resMgr.loadCubeMap(skyboxfaces);
+	auto skyboxTexture = resMgr.loadCubeMap(skyboxfaces);*/
+
 	// skybox VAO
-	//unsigned int skyboxVAO, skyboxVBO;
-	/*glGenVertexArrays(1, &skyboxVAO);
+	unsigned int skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
 	glBindVertexArray(skyboxVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);*/
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	
+	std::vector<std::string> faces
+	{
+		("Resources/Textures/skybox/right.jpg"),
+		("Resources/Textures/skybox/left.jpg"),
+		("Resources/Textures/skybox/top.jpg"),
+		("Resources/Textures/skybox/bottom.jpg"),
+		("Resources/Textures/skybox/front.jpg"),
+		("Resources/Textures/skybox/back.jpg")
+	};
 
-	//std::vector<std::string> faces
-	//{
-	//	("Resources/Textures/skybox/right.jpg"),
-	//	("Resources/Textures/skybox/left.jpg"),
-	//	("Resources/Textures/skybox/top.jpg"),
-	//	("Resources/Textures/skybox/bottom.jpg"),
-	//	("Resources/Textures/skybox/front.jpg"),
-	//	("Resources/Textures/skybox/back.jpg")
-	//};
+	
+	auto skyBoxTexture = resMgr.loadCubeMap(faces);
 
 	skyboxShader->useShader();
 	skyboxShader->setInt("skybox", 0);
@@ -114,36 +121,39 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//calls glUsePogram with the shader id
+		glm::mat4 view;
+		glm::mat4 projection = glm::perspective(glm::radians(camera.getZoom()), (float)800 / (float)600, 0.1f, 1000.0f);
+
+		//render terrain
 		shader->useShader();
 		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, -100.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(terrainAngle), terrain.getRotationAxis());
 		// set projection matrix
-		glm::mat4 projection = glm::perspective(glm::radians(camera.getZoom()), (float)800 / (float)600, 0.1f, 1000.0f);
+		projection = glm::perspective(glm::radians(camera.getZoom()), (float)800 / (float)600, 0.1f, 1000.0f);
 		//getViewMatrix calls the lookAt function
-		glm::mat4 view = camera.GetViewMatrix();
-
+		view = camera.GetViewMatrix();
 		shader->setMat4("projection", projection);
 		shader->setMat4("view", view);
 		shader->setMat4("model", model);
 		terrain.render();
-		
-		//glDepthRange(1, 1);
-		glDepthMask(GL_FALSE);
+
+		//render skybox
+		glDepthFunc(GL_LEQUAL);
 		skyboxShader->useShader();
-		//set the view and projection matrices to the uniform variables in the shader
-		view = glm::mat4((camera.GetViewMatrix())); // remove translation from the view matrix
+		skyboxShader->setInt("skybox", 0);
+		// remove translation from the view matrix		
+		//this makes it so the camera doesnt move out of the cube
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix())); 									
 		skyboxShader->setMat4("view", view);
 		skyboxShader->setMat4("projection", projection);
-		skyboxShader->setInt("skybox", 0);
-		glBindVertexArray(skybox.getVao());
+		//skyboxShader->setMat4("model", model);
+		glBindVertexArray(skyboxVAO);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.getTextureId());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTexture.getTextureId());
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		glDepthFunc(GL_LESS); 
-
+		glDepthFunc(GL_LESS);
 
 		// swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);

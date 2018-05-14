@@ -1,7 +1,8 @@
 #include "Skybox.h"
 
-Skybox::Skybox(float vertices[])
+Skybox::Skybox(float boxVertices[])
 {
+	//std::copy(boxVertices, boxVertices + 108, m_skyboxVertices);
 
 	m_skyboxFaces = 
 	{
@@ -17,7 +18,7 @@ Skybox::Skybox(float vertices[])
 	glGenBuffers(1, &m_vbo);
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(boxVertices), &boxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
