@@ -25,14 +25,6 @@ unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const ch
 	glGenTextures(1, &m_textureId);
 	glBindTexture(target, m_textureId);
 
-	// set texture wrapping to GL_REPEAT (default wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
-
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR);
-
 	stbi_set_flip_vertically_on_load(flip);
 	m_data = stbi_load(texturePath, &m_width, &m_height, &m_nrChannels, channels);
 
@@ -47,6 +39,14 @@ unsigned int TextureLoader::loadTexture(GLenum target, GLenum wrapping, const ch
 
  	if (m_data)
 	{
+		// set texture wrapping to GL_REPEAT (default wrapping method)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
+
+		// set texture filtering parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR);
+
 		glTexImage2D(GL_TEXTURE_2D, 0, rgbFormat, m_width, m_height, 0, rgbFormat, GL_UNSIGNED_BYTE, m_data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}

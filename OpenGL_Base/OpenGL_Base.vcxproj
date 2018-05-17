@@ -137,8 +137,10 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="Libraries\PerlinNoise.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Plane.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
@@ -150,8 +152,10 @@
     <ClInclude Include="GlobalVertexVars.h" />
     <ClInclude Include="Libraries\Noise.h" />
     <ClInclude Include="Libraries\PerlinNoise.h" />
+    <ClInclude Include="Plane.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Terrain.h" />
@@ -161,8 +165,12 @@
   <ItemGroup>
     <None Include="Shaders\cubeShader.fs" />
     <None Include="Shaders\cubeShader.vs" />
+    <None Include="Shaders\lighting.fs" />
+    <None Include="Shaders\lighting.vs" />
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
+    <None Include="Shaders\shadowMapShader.fs" />
+    <None Include="Shaders\shadowMapShader.vs" />
     <None Include="Shaders\skyboxShader.fs" />
     <None Include="Shaders\skyboxShader.vs" />
   </ItemGroup>

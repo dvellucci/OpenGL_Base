@@ -9,7 +9,8 @@ m_rotationSpeed(5.0), m_rotationAxis(1.0f, 0.0f, 0.0f), m_renderingMode(GL_TRIAN
 
 }
 
-Terrain::~Terrain() {
+Terrain::~Terrain() 
+{
 
 }
 
@@ -53,16 +54,20 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 		}
 	}
 
-	// buffer data
+	//Save the points that will be used to make triangles
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
 	// bind VertexPosition attribute
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 
-	//bind VertexTexCoord attribute
+	//normals?
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, y));
+
+	//bind VertexTexCoord attribute
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
 
 	// bind VertexColor attribute
 	//glEnableVertexAttribArray(2);
@@ -73,7 +78,8 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
 
 
-	// indices
+	//tell the EBO how to draw each point for the triangles
+	//this is using a counter clockwise fashion
 	for (auto i = 0; i < h-1; ++i) {
 		for (auto j = 0; j < w-1; ++j) {
 
@@ -128,9 +134,29 @@ float Terrain::rotateTerrain(float deltatime, GLFWwindow *window)
 	return m_rotationgAngle;
 }
 
-//render the indices of the terrain
+
 void Terrain::render()
 {
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+	glDrawElements(m_renderingMode, m_indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
+
+//render the indices of the terrain
+void Terrain::render(std::shared_ptr<Shader> &shader, Camera& camera, float w, float h)
+{
+	glm::mat4 model, view, projection;
+	shader->useShader();
+	model = glm::translate(model, glm::vec3(0.0f, -50.0f, 0.0f));
+	//model = glm::rotate(model, glm::radians(m_rotationgAngle), m_rotationAxis);
+	projection = glm::perspective(glm::radians(camera.getZoom()), w / h, 0.1f, 1000.0f);
+	view = camera.GetViewMatrix();
+	shader->setMat4("projection", projection);
+	shader->setMat4("view", view);
+	shader->setMat4("model", model);
+
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
 	glDrawElements(m_renderingMode, m_indices.size(), GL_UNSIGNED_INT, 0);

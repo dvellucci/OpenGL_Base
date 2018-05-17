@@ -9,13 +9,13 @@ public:
 	Cube(float vertices[]);
 	~Cube();
 
-	void renderCube(int numOfVertices, std::shared_ptr<Shader> shader);
+	void renderCube();
 	const int getVBO() { return VBO; }
 	const int getVAO() { return VAO; }
 
 private:
 
 	unsigned int VBO, VAO; 
-	float m_vertices[180];
+	float m_vertices[288];
 };
 

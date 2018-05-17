@@ -6,6 +6,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "TextureLoader.h"
+#include "shader.h"
+#include "Camera.h"
+#include <memory>
 
 typedef struct {
 	float x, y, z;
@@ -21,6 +24,7 @@ public:
 
 	void setupTerrain(int, int, TextureLoader& loader);
 	void render();
+	void render(std::shared_ptr<Shader> &shader, Camera& camera, float w, float h);
 	void changeRenderMode(GLFWwindow * window);
 	void setHeightScale(float heightScale) { m_heightScale = heightScale; }
 	float rotateTerrain(float deltatime, GLFWwindow *window);
