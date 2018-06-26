@@ -1,6 +1,6 @@
 #include "window.h"
 
-window::window(int width, int height) : m_screenWidth(width), m_screenHeight(height)
+window::window(float width, float height) : m_screenWidth(width), m_screenHeight(height)
 {
 	// glfw: initialize and configure
 	glfwInit();

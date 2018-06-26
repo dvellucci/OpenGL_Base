@@ -7,9 +7,10 @@ Camera::Camera(glm::vec3 position) : m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
 	m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	//value for how much camera is looking left or right
-	m_yaw = -90.0f;
+	m_yaw = 0.0f;
 	//value for how much camera is looking up or down
-	m_pitch = -35.0f;
+	//m_pitch = 0.0f;
+	m_pitch = -45.0f;
 
 	updateCameraVectors();
 }
@@ -26,7 +27,7 @@ void Camera::moveCamera(Camera_Movement direction, float deltaTime)
 		m_position -= m_right * velocity;
 	if (direction == RIGHT)
 		m_position += m_right * velocity;
-	
+
 }
 
 void Camera::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)

@@ -30,6 +30,14 @@ public:
 	void processMouseScroll(float yoffset);
 	const float getZoom() { return m_zoom; }
 	glm::vec3 getPosition() { return m_position; }
+	glm::vec3 getFrontVector() { return m_front; }
+	glm::vec3 getUpVector() { return m_up; }
+
+	glm::vec3 m_position;
+
+	// Euler Angles
+	float m_yaw;
+	float m_pitch;
 
 private:
 
@@ -37,16 +45,12 @@ private:
 	void updateCameraVectors();
 
 	// Camera Attributes
-	glm::vec3 m_position;
+	//glm::vec3 m_position;
 	glm::vec3 m_front;
 	glm::vec3 m_up;
 	glm::vec3 m_right;
 	glm::vec3 m_worldUp;
 
-
-	// Euler Angles
-	float m_yaw;
-	float m_pitch;
 
 	// Camera options
 	float m_cameraSpeed;

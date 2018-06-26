@@ -10,15 +10,17 @@
 #include "Camera.h"
 #include <memory>
 
-typedef struct {
-	float x, y, z;
-	float u, v;
-	float r, g, b, a;
-} Vertex;
-
 class Terrain 
 {
 public:
+
+	typedef struct {
+		float x, y, z;
+		float u, v; //for textures
+		float nx, ny, nz; //normals
+		float r, g, b, a;
+	} Vertex;
+
 	Terrain();
 	~Terrain();
 
@@ -27,9 +29,9 @@ public:
 	void render(std::shared_ptr<Shader> &shader, Camera& camera, float w, float h);
 	void changeRenderMode(GLFWwindow * window);
 	void setHeightScale(float heightScale) { m_heightScale = heightScale; }
-	float rotateTerrain(float deltatime, GLFWwindow *window);
 	const float getHeightScale() { return m_heightScale; }
-	const glm::vec3 getRotationAxis() { return m_rotationAxis; }
+	float getPixelHeight(unsigned char* data, int x, int y);
+	glm::vec3 getVec3(unsigned char* data, int x, int y);
 
 
 private: 
@@ -41,11 +43,6 @@ private:
 	int m_width, m_height;
 	int m_renderingMode;
 	float m_heightScale;
-
-	float m_rotationgAngle;
-	float m_rotationSpeed;
-
-	glm::vec3 m_rotationAxis;
 
 	// buffers
 	std::vector<Vertex> vertices;

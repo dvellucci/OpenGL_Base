@@ -19,9 +19,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
-//scene with objects and shadow mapping
-void renderShadowScene(std::shared_ptr<Shader> &shader, Cube &cube, Plane& plane);
-
 float screenWidth = 800.0f;
 float screenHeight = 800.0f;
 
@@ -29,24 +26,31 @@ float screenHeight = 800.0f;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
+float bias = 0.0f;
+
 //create camera object with starting position
-//Camera camera(glm::vec3(-100.0f, 100.0f, 0.0f));
-Camera camera(glm::vec3(0.0f, 15.0f, 17.0f));
+Camera camera(glm::vec3(-100.0f, 100.0f, 0.0f));
+//Camera camera(glm::vec3(0.0f, 15.0f, 17.0f));
+//Camera camera(glm::vec3(0.0f, 10.0f, 10.0f));
+//angle used for camera rotation around scene
+float angle = 0.0f;
 
 //checks for the first time to recieve mouse input to avoid sudden jumps when the mouse first enters the screen
 bool firstMouse = true;
 //boolean to decide if the camera should be free to move based on mouse click
 bool moveCamera = false;
 //start mouse position at the center of the screen
-float lastX = screenWidth / 2.0;
-float lastY = screenHeight / 2.0;
+float lastX = screenWidth / 2.0f;
+float lastY = screenHeight / 2.0f;
 
 int mouseButton = 0;
 int mouseButtonState = 0;
 
 // lighting info
-glm::vec3 lightPos(4.0f, 4.0f, -1.0f);
-float lightX = 0.0f, lightY = 0.0f, lightZ = 0.0f;
+glm::vec3 lightInvDir = glm::vec3(0.5f, 2, 2);
+glm::vec3 lightPos(3.5f, 7.0f, 10.0f);
+glm::vec3 coneDirection(0.0f, 0.0f, -1.0f);
+float attenuation = 0.1f;
 
 int main()
 {
@@ -75,8 +79,8 @@ int main()
 	auto skyboxShader = std::shared_ptr<Shader>(new Shader("Shaders/skyboxShader.vs", "Shaders/skyboxShader.fs"));
 
 	//shaders for shadow mapping
-	auto simpleDepthShader = std::shared_ptr<Shader>(new Shader("Shaders/shadowMapShader.vs", "Shaders/shadowMapShader.fs"));
-	auto shadowMapShader = std::shared_ptr<Shader>(new Shader("Shaders/lighting.vs", "Shaders/lighting.fs"));
+	auto shadowMapShader = std::shared_ptr<Shader>(new Shader("Shaders/shadowMapShader.vs", "Shaders/shadowMapShader.fs"));
+	auto lightingShader = std::shared_ptr<Shader>(new Shader("Shaders/lighting.vs", "Shaders/lighting.fs"));
 
 	ResourceManager& resMgr = ResourceManager::getInstance();
 	//auto container = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGB, "Resources/Textures/container.jpg", false, 0);
@@ -86,8 +90,7 @@ int main()
 	auto terrainTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/terrainTexture.png", true, 4);
 
 	//textures for cube and plane
-	auto crateTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/wooden_crate.jpg", true, 4);
-	auto floorTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/wood.png", true, 4);
+	auto floorTexture = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/Textures/white_tile_texture.jpg", true, 4);
 
 	//create the terrain and set the dimensions 
 	Terrain terrain;
@@ -96,20 +99,22 @@ int main()
 	shader->setFloat("heightScale", terrain.getHeightScale());
 	terrain.setupTerrain(heightMap.getWidth(), heightMap.getHeight(), heightMap);
 
-	//setup the FBO and load a depth texture
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	//create the FBO and generate the depth texture
+	const unsigned int shadowWidth = 1024, shadowHeight = 1024;
 	unsigned int depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);
-	// create depth texture
+
+	// create depth texture and generate the texture filtering parameters
 	unsigned int depthMap;
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// attach depth texture as FBO's depth buffer
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	//attach the depth texture and setup any buffers
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 	glDrawBuffer(GL_NONE);
@@ -123,9 +128,10 @@ int main()
 	auto skyboxTexture = resMgr.loadCubeMap(skyboxfaces);
 
 	// shader configuration
-	shadowMapShader->useShader();
-	shadowMapShader->setInt("diffuseTexture", 0);
-	shadowMapShader->setInt("shadowMap", 1);
+	lightingShader->useShader();
+	lightingShader->setInt("occlusionMap", 0);
+	lightingShader->setInt("shadowMap", 1);
+	lightingShader->setFloat("attenuation", attenuation);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -137,8 +143,9 @@ int main()
 		//process window/camera input
 		processInput(window);
 
-		//terrain rotation 
-		auto terrainAngle = terrain.rotateTerrain(deltaTime, window);
+		//set the bias for the shadow acne every frame
+		lightingShader->useShader();
+		lightingShader->setFloat("bias", bias);
 
 		//change terrain rendering mode
 		terrain.changeRenderMode(window);
@@ -149,44 +156,51 @@ int main()
 		glm::mat4 model;
 	
 		//depth map render pass
+		//light sources projection and view matrix
 		glm::mat4 lightProjection, lightView;
+		//transforms vertices to lightspace
 		glm::mat4 lightSpaceMatrix;
-		lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 20.0f);
-		lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0, 0.0));
+		//create the spotlight source
+		lightProjection = glm::perspective(glm::radians(90.0f), float(shadowWidth / shadowHeight), 0.1f, 100.0f);
+		lightView = glm::lookAt(lightPos, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0, 1, 0));
 		lightSpaceMatrix = lightProjection * lightView;
 		// render scene from light's point of view
-		simpleDepthShader->useShader();
-		simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		shadowMapShader->useShader();
+		shadowMapShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+		glViewport(0, 0, shadowWidth, shadowHeight);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		floorTexture.bindTexture(GL_TEXTURE0, floorTexture.getTextureId());
-		renderShadowScene(simpleDepthShader, cube, plane);
+		//floorTexture.bindTexture(GL_TEXTURE0, floorTexture.getTextureId());
+		//renderPolygons(shadowMapShader, cube, plane);
+		terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
+		terrain.render(shadowMapShader, camera, screenWidth, screenHeight);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//reset viewport
-		glViewport(0, 0, screenWidth, screenHeight);
+		glViewport(0, 0, (GLsizei)screenWidth, (GLsizei)screenHeight);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shadowMapShader->useShader();
+		lightingShader->useShader();
+		lightingShader->setFloat("bias", bias);
 		glm::mat4 projection = glm::perspective(glm::radians(camera.getZoom()), screenWidth / screenHeight, 0.1f, 1000.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-		shadowMapShader->setMat4("projection", projection);
-		shadowMapShader->setMat4("view", view);
-		shadowMapShader->setVec3("lightPos", lightPos);
-		shadowMapShader->setVec3("viewPos", camera.getPosition());
-		// set light uniforms
-		shadowMapShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-		floorTexture.bindTexture(GL_TEXTURE0, floorTexture.getTextureId());
-		//crateTexture.bindTexture(GL_TEXTURE1, crateTexture.getTextureId());
+		//glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 view = glm::lookAt(camera.getPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+		//set uniforms
+		lightingShader->setMat4("projection", projection);
+		lightingShader->setMat4("view", view);
+		lightingShader->setVec3("lightPos", lightPos);
+		lightingShader->setVec3("viewPos", camera.getPosition());
+		lightingShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+		lightingShader->setMat4("model", model);
+		terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
-		renderShadowScene(shadowMapShader, cube, plane);
+		terrain.render(lightingShader, camera, screenWidth, screenHeight);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//render terrain
-		terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
-		terrain.render(shader, camera, screenWidth, screenHeight);
+		//terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
+		//terrain.render(shader, camera, screenWidth, screenHeight);
 
 		//render the skybox 
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.getTextureId());
@@ -201,43 +215,12 @@ int main()
 	return 0;
 }
 
-void renderShadowScene(std::shared_ptr<Shader> &shader, Cube &cube, Plane& plane)
-{
-	glm::mat4 model;
-	shader->setMat4("model", model);
-	plane.renderPlane();
-
-	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-3.0f, -5.5f, 0.0f));
-	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	shader->setMat4("model", model);
-	plane.renderPlane();
-
-	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
-	model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(0.5f));
-	shader->setMat4("model", model);
-	cube.renderCube();
-	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(3.0f, 1.0f, 1.0));
-	model = glm::scale(model, glm::vec3(0.5f));
-	shader->setMat4("model", model);
-	cube.renderCube();
-	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-1.0f, 1.0f, 3.0));
-	model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-	model = glm::scale(model, glm::vec3(0.75));
-	shader->setMat4("model", model);
-	cube.renderCube();
-}
-
 void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	if (moveCamera == true) 
+	if (moveCamera == true)
 	{
 		//camera keyboard controls
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -250,8 +233,8 @@ void processInput(GLFWwindow *window)
 			camera.moveCamera(camera.RIGHT, deltaTime);
 	}
 
+	//Assignment 2 - moving the light
 	float lightSpeed = 3 * deltaTime;
-
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		lightPos.x += lightSpeed;
@@ -268,6 +251,15 @@ void processInput(GLFWwindow *window)
 	{
 		lightPos.y -= lightSpeed;
 	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		lightPos.z += lightSpeed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		lightPos.z -= lightSpeed;
+	}
+
 }
 
 //called whenever the mouse moves
@@ -281,7 +273,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	float xoffset = (float)xpos - lastX;
-	float yoffset = lastY - (float)ypos; // reversed since y-coordinates go from bottom to top
+	float yoffset = lastY - (float)ypos; 
 
 	lastX = (float)xpos;
 	lastY = (float)ypos;
@@ -312,4 +304,3 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		moveCamera = false;
 	}
 }
-

@@ -2,8 +2,7 @@
 #include <math.h>
 #include "Terrain.h"
 
-Terrain::Terrain() : m_heightScale(25.0), m_rotationgAngle(0.0f), 
-m_rotationSpeed(5.0), m_rotationAxis(1.0f, 0.0f, 0.0f), m_renderingMode(GL_TRIANGLES)
+Terrain::Terrain() : m_heightScale(25.0), m_renderingMode(GL_TRIANGLES)
 {
 
 
@@ -34,22 +33,31 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 	for (auto i = 0; i < m_height; ++i) {
 		for (auto j = 0; j < m_width; ++j) {
 			
-			//retrieve the pixel values
-			value = static_cast<float>(*(heightMapData + (i*m_width + j) * 4));
+			//retrieve the pixel height
+			auto height = getPixelHeight(heightMapData, i, j);
+			//value = static_cast<float>(*(heightMapData + (i*m_width + j) * 4));
 
 			//get place of the nth pixel as percentage
 			float s = (i / (float)(w - 1));
 			float t = (j / (float)(h - 1));
 
-			//get proper x and z values so that the terrain is centered around (0,0) in world space
+			//get proper x and z values so that the terrain's origin is centered around (0,0) in world space
 			float x = (s * w) - (w * 0.5f);
-			float y = m_heightScale * (value / 255.0f);
+			//float y = m_heightScale * (value / 255.0f);
+			float y = height;
 			float z = (t * h) - (h * 0.5f);
+
+			glm::vec3 heightL = getVec3(heightMapData, i - 1, j);
+			glm::vec3 heightR = getVec3(heightMapData, i + 1, j);
+			glm::vec3 heightD = getVec3(heightMapData, i, j-1);
+			glm::vec3 heightU = getVec3(heightMapData, i, j + 1);
+			glm::vec3 normalVector = glm::normalize(glm::cross(heightL - heightR, heightD - heightU));
 
 			//insert the vertex coords and the texture coords
 			vertices.push_back({
 				x, y, z, //makes the center of the terrain its origin
-				((float)j / m_width), (1.0f - ((float)i / m_height)) //saves the coords that applies the terrain texture to the rendered heightmap
+				((float)j / m_width), (1.0f - ((float)i / m_height)), //saves the coords that applies the terrain texture to the rendered heightmap
+				normalVector.x, normalVector.y, normalVector.z
 				});
 		}
 	}
@@ -61,13 +69,13 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 
-	//normals?
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, y));
-
-	//bind VertexTexCoord attribute
+	//send coords to Normal attribute in shader (just done for testing)
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
+
+	//bind VertexTexCoord attribute
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, nx));
 
 	// bind VertexColor attribute
 	//glEnableVertexAttribArray(2);
@@ -105,35 +113,33 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 	glBindVertexArray(0);
 }
 
-//rotates the terrain 
-float Terrain::rotateTerrain(float deltatime, GLFWwindow *window)
+float Terrain::getPixelHeight(unsigned char* data, int x, int y)
 {
-	float velocity = m_rotationSpeed * deltatime;
-
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	float height = 0.0f;
+	if (x < 0 || x >= m_width || y < 0 || y >= m_width)
+		height = 0.0f;
+	else
 	{
-		m_rotationAxis = glm::vec3(1.0f, 0.0f, 0.0f);
-		m_rotationgAngle += 3 * velocity;
+		float value = static_cast<float>(*(data + (x*m_width + y) * 4));
+		height = m_heightScale * (value / 255.0f);
 	}
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		m_rotationgAngle -= 3 * velocity;
-		m_rotationAxis = glm::vec3(1.0f, 0.0f, 0.0f);
-	}
-	else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		m_rotationgAngle += 3 * velocity;
-		m_rotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
-	}
-	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		m_rotationgAngle -= 3 * velocity;
-		m_rotationAxis = glm::vec3(0.0f, 0.0f, 1.0f);
-	}
-
-	return m_rotationgAngle;
+	
+	return height;
 }
 
+glm::vec3 Terrain::getVec3(unsigned char * data, int x, int y)
+{
+	float height = 0.0f;
+	if (x < 0 || x >= m_width || y < 0 || y >= m_width)
+		height = 0.0f;
+	else
+	{
+		float value = static_cast<float>(*(data + (x*m_width + y) * 4));
+		height = m_heightScale * (value / 255.0f);
+	}
+	glm::vec3 vec = glm::vec3(x, height, y);
+	return vec;
+}
 
 void Terrain::render()
 {
@@ -149,8 +155,7 @@ void Terrain::render(std::shared_ptr<Shader> &shader, Camera& camera, float w, f
 {
 	glm::mat4 model, view, projection;
 	shader->useShader();
-	model = glm::translate(model, glm::vec3(0.0f, -50.0f, 0.0f));
-	//model = glm::rotate(model, glm::radians(m_rotationgAngle), m_rotationAxis);
+	model = glm::translate(model, glm::vec3(0.0f, -5.0f, 0.0f));
 	projection = glm::perspective(glm::radians(camera.getZoom()), w / h, 0.1f, 1000.0f);
 	view = camera.GetViewMatrix();
 	shader->setMat4("projection", projection);

@@ -142,6 +142,7 @@
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="window.cpp" />
@@ -154,9 +155,9 @@
     <ClInclude Include="Libraries\PerlinNoise.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="shader.h" />
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextureLoader.h" />

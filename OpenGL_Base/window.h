@@ -7,13 +7,13 @@
 class window
 {
 public:
-	window(int screenWidhth, int screenHeight);
+	window(float screenWidhth, float screenHeight);
 	~window();
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	GLFWwindow* getWindow();
 
 private:
-	int m_screenWidth;
-	int m_screenHeight;
+	float m_screenWidth;
+	float m_screenHeight;
 	GLFWwindow* mainWindow;
 };
