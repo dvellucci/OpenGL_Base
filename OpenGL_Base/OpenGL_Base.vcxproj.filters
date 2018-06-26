@@ -48,13 +48,7 @@
     <ClCompile Include="Skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Plane.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,20 +92,11 @@
     <ClInclude Include="Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
-    <None Include="Shaders\cubeShader.fs" />
-    <None Include="Shaders\cubeShader.vs" />
     <None Include="Shaders\skyboxShader.vs" />
     <None Include="Shaders\skyboxShader.fs" />
-    <None Include="Shaders\shadowMapShader.vs" />
-    <None Include="Shaders\shadowMapShader.fs" />
-    <None Include="Shaders\lighting.vs" />
-    <None Include="Shaders\lighting.fs" />
   </ItemGroup>
 </Project>

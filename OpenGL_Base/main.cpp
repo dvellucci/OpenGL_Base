@@ -30,8 +30,6 @@ float bias = 0.0f;
 
 //create camera object with starting position
 Camera camera(glm::vec3(-100.0f, 100.0f, 0.0f));
-//Camera camera(glm::vec3(0.0f, 15.0f, 17.0f));
-//Camera camera(glm::vec3(0.0f, 10.0f, 10.0f));
 //angle used for camera rotation around scene
 float angle = 0.0f;
 
@@ -78,12 +76,7 @@ int main()
 	//shader for skybox
 	auto skyboxShader = std::shared_ptr<Shader>(new Shader("Shaders/skyboxShader.vs", "Shaders/skyboxShader.fs"));
 
-	//shaders for shadow mapping
-	auto shadowMapShader = std::shared_ptr<Shader>(new Shader("Shaders/shadowMapShader.vs", "Shaders/shadowMapShader.fs"));
-	auto lightingShader = std::shared_ptr<Shader>(new Shader("Shaders/lighting.vs", "Shaders/lighting.fs"));
-
 	ResourceManager& resMgr = ResourceManager::getInstance();
-	//auto container = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, GL_RGB, "Resources/Textures/container.jpg", false, 0);
 	//load the heightMap with 4 channels
 	auto heightMap = resMgr.load(GL_TEXTURE_2D, GL_REPEAT, "Resources/HeightMaps/A1map.bmp", false, 4);
 	//load the terrain texture corresponding to the heightmap
@@ -99,39 +92,10 @@ int main()
 	shader->setFloat("heightScale", terrain.getHeightScale());
 	terrain.setupTerrain(heightMap.getWidth(), heightMap.getHeight(), heightMap);
 
-	//create the FBO and generate the depth texture
-	const unsigned int shadowWidth = 1024, shadowHeight = 1024;
-	unsigned int depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-
-	// create depth texture and generate the texture filtering parameters
-	unsigned int depthMap;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	//attach the depth texture and setup any buffers
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//auto shadowMap = std::shared_ptr<ShadowMap>(new ShadowMap(1024, 1024));
-
 	//create skybox, insert each filepath for the faces into the vector and load them
 	Skybox skybox(skyboxVertices);
 	auto skyboxfaces = skybox.getSkyboxVector();
 	auto skyboxTexture = resMgr.loadCubeMap(skyboxfaces);
-
-	// shader configuration
-	lightingShader->useShader();
-	lightingShader->setInt("occlusionMap", 0);
-	lightingShader->setInt("shadowMap", 1);
-	lightingShader->setFloat("attenuation", attenuation);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -143,64 +107,16 @@ int main()
 		//process window/camera input
 		processInput(window);
 
-		//set the bias for the shadow acne every frame
-		lightingShader->useShader();
-		lightingShader->setFloat("bias", bias);
-
 		//change terrain rendering mode
 		terrain.changeRenderMode(window);
-
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glm::mat4 model;
-	
-		//depth map render pass
-		//light sources projection and view matrix
-		glm::mat4 lightProjection, lightView;
-		//transforms vertices to lightspace
-		glm::mat4 lightSpaceMatrix;
-		//create the spotlight source
-		lightProjection = glm::perspective(glm::radians(90.0f), float(shadowWidth / shadowHeight), 0.1f, 100.0f);
-		lightView = glm::lookAt(lightPos, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0, 1, 0));
-		lightSpaceMatrix = lightProjection * lightView;
-		// render scene from light's point of view
-		shadowMapShader->useShader();
-		shadowMapShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-		glViewport(0, 0, shadowWidth, shadowHeight);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		//floorTexture.bindTexture(GL_TEXTURE0, floorTexture.getTextureId());
-		//renderPolygons(shadowMapShader, cube, plane);
-		terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
-		terrain.render(shadowMapShader, camera, screenWidth, screenHeight);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//reset viewport
 		glViewport(0, 0, (GLsizei)screenWidth, (GLsizei)screenHeight);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		lightingShader->useShader();
-		lightingShader->setFloat("bias", bias);
-		glm::mat4 projection = glm::perspective(glm::radians(camera.getZoom()), screenWidth / screenHeight, 0.1f, 1000.0f);
-		//glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 view = glm::lookAt(camera.getPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-		//set uniforms
-		lightingShader->setMat4("projection", projection);
-		lightingShader->setMat4("view", view);
-		lightingShader->setVec3("lightPos", lightPos);
-		lightingShader->setVec3("viewPos", camera.getPosition());
-		lightingShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-		lightingShader->setMat4("model", model);
-		terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		terrain.render(lightingShader, camera, screenWidth, screenHeight);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 		//render terrain
-		//terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
-		//terrain.render(shader, camera, screenWidth, screenHeight);
+		terrainTexture.bindTexture(GL_TEXTURE0, terrainTexture.getTextureId());
+		terrain.render(shader, camera, screenWidth, screenHeight);
 
 		//render the skybox 
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.getTextureId());

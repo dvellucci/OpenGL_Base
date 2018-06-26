@@ -140,9 +140,7 @@
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="shader.cpp" />
-    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Skybox.cpp" />
-    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="window.cpp" />
@@ -157,21 +155,14 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Skybox.h" />
-    <ClInclude Include="Sphere.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\cubeShader.fs" />
-    <None Include="Shaders\cubeShader.vs" />
-    <None Include="Shaders\lighting.fs" />
-    <None Include="Shaders\lighting.vs" />
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
-    <None Include="Shaders\shadowMapShader.fs" />
-    <None Include="Shaders\shadowMapShader.vs" />
     <None Include="Shaders\skyboxShader.fs" />
     <None Include="Shaders\skyboxShader.vs" />
   </ItemGroup>

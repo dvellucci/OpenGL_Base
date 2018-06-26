@@ -34,8 +34,7 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 		for (auto j = 0; j < m_width; ++j) {
 			
 			//retrieve the pixel height
-			auto height = getPixelHeight(heightMapData, i, j);
-			//value = static_cast<float>(*(heightMapData + (i*m_width + j) * 4));
+			value = static_cast<float>(*(heightMapData + (i*m_width + j) * 4));
 
 			//get place of the nth pixel as percentage
 			float s = (i / (float)(w - 1));
@@ -43,21 +42,13 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 
 			//get proper x and z values so that the terrain's origin is centered around (0,0) in world space
 			float x = (s * w) - (w * 0.5f);
-			//float y = m_heightScale * (value / 255.0f);
-			float y = height;
+			float y = m_heightScale * (value / 255.0f);
 			float z = (t * h) - (h * 0.5f);
-
-			glm::vec3 heightL = getVec3(heightMapData, i - 1, j);
-			glm::vec3 heightR = getVec3(heightMapData, i + 1, j);
-			glm::vec3 heightD = getVec3(heightMapData, i, j-1);
-			glm::vec3 heightU = getVec3(heightMapData, i, j + 1);
-			glm::vec3 normalVector = glm::normalize(glm::cross(heightL - heightR, heightD - heightU));
 
 			//insert the vertex coords and the texture coords
 			vertices.push_back({
 				x, y, z, //makes the center of the terrain its origin
 				((float)j / m_width), (1.0f - ((float)i / m_height)), //saves the coords that applies the terrain texture to the rendered heightmap
-				normalVector.x, normalVector.y, normalVector.z
 				});
 		}
 	}
@@ -69,17 +60,9 @@ void Terrain::setupTerrain(int w, int h, TextureLoader& loader)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 
-	//send coords to Normal attribute in shader (just done for testing)
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-
 	//bind VertexTexCoord attribute
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, nx));
-
-	// bind VertexColor attribute
-	//glEnableVertexAttribArray(2);
-	//glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
 
 	// element buffer object
 	glGenBuffers(1, &m_ebo);
